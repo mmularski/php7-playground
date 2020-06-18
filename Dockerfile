@@ -1,8 +1,22 @@
-FROM php:7.1-fpm
+FROM php:7.4-fpm
 
-RUN docker-php-ext-install pdo_mysql
+RUN apt-get update          \
+    && apt-get install -y   \
+        git                 \
+        zlib1g-dev          \
+        zip                 \
+        unzip               \
+        libxml2-dev         \
+        libgd-dev           \
+        libpng-dev          \
+        libfreetype6-dev    \
+        libjpeg62-turbo-dev \
+        libzip-dev          \
+    && pecl install xdebug                                                             \
+    && docker-php-ext-install mysqli pdo_mysql iconv simplexml                                      \
+    && docker-php-ext-install gd zip                                                                \
+    && docker-php-ext-enable xdebug                                                          \
+    && apt-get clean all                                                                            \
+    && rm -rvf /var/lib/apt/lists/*                                                                 \
 
-RUN pecl install xdebug
-RUN docker-php-ext-enable xdebug
-
-COPY conf/php.ini /etc/php/7.1/fpm/conf.d/40-custom.ini
+RUN curl -sS https://getcomposer.org/installer | php -- --filename=composer --install-dir=/bin
